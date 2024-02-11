@@ -6,7 +6,7 @@ class ComplexMatrix {
     /**
      * Параметр колличества значений для 1 числа при выводе матрицы
      * */
-    // Рекомендуемое значение при обычной работе 8, при перемножении средних >=12
+    // Рекомендуемое значение при обычной работе 8, при перемножении средних матриц >=12
     private int printCapacity = 12;
 
     ComplexMatrix(int sizeX, int sizeY) {
@@ -52,7 +52,7 @@ class ComplexMatrix {
         for (int i = 0; i < sizeX; i++) {
             line += "[";
             for (int j = 0; j < sizeY; j++) {
-                String cache = matrix[i][j].getCNum();
+                String cache = matrix[i][j].getStringCNum();
                 int k = (printCapacity - cache.length()) / 2;
                 for (int c = 0; c < k; c++) line += " ";
                 line += cache;
@@ -66,49 +66,47 @@ class ComplexMatrix {
     /**
      * Возвращает транспонированную матрицу
      * */
-    static ComplexMatrix transparent(ComplexMatrix m){
-        ComplexMatrix res = new ComplexMatrix(m.sizeY, m.sizeX);
-        for (int i = 0; i < m.sizeX; i++) {
-            for (int j = 0; j < m.sizeY; j++) {
-                res.setValue(j,i, m.getValue(i,j).num, m.getValue(i,j).cnum);
+    void transparent(){
+        ComplexMatrix res = new ComplexMatrix(this.sizeY, this.sizeX);
+        for (int i = 0; i < this.sizeX; i++) {
+            for (int j = 0; j < this.sizeY; j++) {
+                res.setValue(j,i, this.getValue(i,j).getNum(), this.getValue(i,j).getCNum());
             }
         }
-        return res;
+        this.matrix = res.matrix;
+        this.sizeX = res.sizeX;
+        this.sizeY = res.sizeY;
     }
     /**
      * Возвращает резудьтат сложения матриц
      * */
-    static ComplexMatrix addition(ComplexMatrix m1, ComplexMatrix m2) {
-        if (m1.sizeX != m2.sizeX || m1.sizeY != m2.sizeY) {
+    void add(ComplexMatrix m) {
+        if (this.sizeX != m.sizeX || this.sizeY != m.sizeY) {
             throw new IllegalArgumentException("Incorrect sizes of matrices");
         }
-        ComplexMatrix res = new ComplexMatrix(m1.sizeX, m1.sizeY);
-        for (int i = 0; i < res.sizeX; i++) {
-            for (int j = 0; j < res.sizeY; j++) {
-                res.setValue(i, j, m1.getValue(i, j).num + m2.getValue(i, j).num, m1.getValue(i, j).cnum + m2.getValue(i, j).cnum);
+        for (int i = 0; i < this.sizeX; i++) {
+            for (int j = 0; j < this.sizeY; j++) {
+                this.matrix[i][j].add(m.matrix[i][j]);
             }
         }
-        return res;
     }
     /**
      * Возвращает результат умножения матриц
      * */
-    static ComplexMatrix multiplication(ComplexMatrix m1, ComplexMatrix m2) {
-        if (m1.sizeX != m2.sizeY || m1.sizeY != m2.sizeX) {
+    void multiplicate(ComplexMatrix m) {
+        if (this.sizeX != m.sizeY || this.sizeY != m.sizeX) {
             throw new IllegalArgumentException("Incorrect sizes of matrices");
         }
-        ComplexMatrix res = new ComplexMatrix(m1.sizeX, m1.sizeY);
+        ComplexMatrix res = new ComplexMatrix(this.sizeX, m.sizeY);
         for (int i = 0; i < res.sizeX; i++) {
             for (int j = 0; j < res.sizeY; j++) {
-                int cache = 0, ccache = 0;
-                for (int k = 0; k < m1.sizeY; k++) {
-                    int a1 = m1.getValue(i, k).num, a2 = m2.getValue(k, j).num, b1 = m1.getValue(i, k).cnum, b2 = m2.getValue(k, j).cnum;
-                    cache += a1 * a2 - b1 * b2;
-                    ccache += a1 * b2 + b1 * a2;
+                for (int k = 0; k < this.sizeY; k++) {
+                    res.matrix[i][j].add(ComplexNum.multiplication(this.matrix[i][k], m.matrix[k][j]));
                 }
-                res.setValue(i, j, cache, ccache);
             }
         }
-        return res;
+        this.matrix = res.matrix;
+        this.sizeX = res.sizeX;
+        this.sizeY = res.sizeY;
     }
 }
